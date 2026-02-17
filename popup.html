@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lingo-Mail Settings</title>
+    <link rel="stylesheet" href="popup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="popup-header">
+            <div class="logo-row">
+                <div class="logo-icon">🌐</div>
+                <div class="logo-text">
+                    <h1>Lingo-Mail</h1>
+                    <span class="subtitle">Multilingual Email Translator</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Form -->
+        <div class="settings-body">
+
+            <!-- API Key -->
+            <div class="field-group">
+                <label for="apiKey">
+                    <span class="field-icon">🔑</span>
+                    Lingo.dev API Key
+                </label>
+                <div class="input-wrapper">
+                    <input type="password" id="apiKey" placeholder="Enter your API key" autocomplete="off">
+                    <button id="toggleApiKey" class="eye-btn" title="Show/hide key">👁️</button>
+                </div>
+                <span class="field-hint">Get your key at <a href="https://lingo.dev/app"
+                        target="_blank">lingo.dev/app</a></span>
+            </div>
+
+            <!-- Preferred Language -->
+            <div class="field-group">
+                <label for="targetLanguage">
+                    <span class="field-icon">🗣️</span>
+                    Translate Emails To
+                </label>
+                <select id="targetLanguage">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="ru">Russian</option>
+                    <option value="zh">Chinese</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ko">Korean</option>
+                    <option value="ar">Arabic</option>
+                    <option value="hi">Hindi</option>
+                    <option value="bn">Bengali</option>
+                    <option value="tr">Turkish</option>
+                    <option value="vi">Vietnamese</option>
+                    <option value="th">Thai</option>
+                    <option value="pl">Polish</option>
+                    <option value="nl">Dutch</option>
+                    <option value="sv">Swedish</option>
+                    <option value="da">Danish</option>
+                    <option value="fi">Finnish</option>
+                    <option value="no">Norwegian</option>
+                    <option value="cs">Czech</option>
+                    <option value="ro">Romanian</option>
+                    <option value="hu">Hungarian</option>
+                    <option value="el">Greek</option>
+                    <option value="he">Hebrew</option>
+                    <option value="id">Indonesian</option>
+                    <option value="ms">Malay</option>
+                    <option value="uk">Ukrainian</option>
+                    <option value="ta">Tamil</option>
+                    <option value="te">Telugu</option>
+                    <option value="mr">Marathi</option>
+                    <option value="gu">Gujarati</option>
+                    <option value="kn">Kannada</option>
+                </select>
+            </div>
+
+            <!-- Auto Translate Toggle -->
+            <div class="field-group toggle-row">
+                <label for="autoTranslate">
+                    <span class="field-icon">⚡</span>
+                    Auto-Translate Emails
+                </label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="autoTranslate" checked>
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button id="saveBtn" class="save-btn">
+                <span class="save-icon">💾</span>
+                Save Settings
+            </button>
+
+            <!-- Status Message -->
+            <div id="statusMsg" class="status-msg"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="popup-footer">
+            <span>Powered by <a href="https://lingo.dev" target="_blank">lingo.dev</a></span>
+            <span class="version">v1.0.0</span>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

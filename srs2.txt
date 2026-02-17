@@ -1,0 +1,249 @@
+📧 Lingo-mail — SRS
+
+Platform: Gmail Chrome Extension
+Version: 1.0
+Date: Feb 2026
+
+1. Introduction
+1.1 Purpose
+
+This document specifies requirements for the Multilingual Email Translator, a Chrome extension that automatically translates Gmail emails into the user’s preferred language and translates replies before sending.
+
+1.2 Scope
+
+The system will:
+
+Detect email language in Gmail
+
+Translate email body into user language
+
+Display translated content in Gmail UI
+
+Translate composed replies into recipient language
+
+Preserve formatting
+
+The product is intended for Gmail users communicating across languages.
+
+1.3 Definitions
+Term	Meaning
+Gmail DOM	HTML structure of Gmail webpage
+Translation API	External service for translation
+Source Language	Original email language
+Target Language	User preferred language
+2. Overall Description
+2.1 Product Perspective
+
+The system is a browser extension layer over Gmail.
+It does not replace Gmail — it augments it.
+
+Flow:
+
+Gmail page → Extension reads text → Translate → Inject translation
+
+2.2 Product Functions
+
+The tool shall:
+
+Translate received emails
+
+Translate sent emails
+
+Detect language automatically
+
+Allow toggle original/translated
+
+Work per email thread
+
+Support multiple languages
+
+2.3 User Classes
+User	Description
+General user	Reads foreign emails
+Business user	International communication
+Student	Academic emails
+Support agent	Multilingual customers
+2.4 Operating Environment
+
+Chrome browser (v110+)
+
+Gmail web interface
+
+Internet connection
+
+Translation API access
+
+3. System Features
+3.1 Email Auto Translation
+Description
+
+Translate incoming email body into user language.
+
+Functional Requirements
+
+FR1: System shall detect email content on Gmail page
+
+FR2: System shall extract email text
+
+FR3: System shall detect source language
+
+FR4: System shall translate text to target language
+
+FR5: System shall insert translated text below original
+
+FR6: System shall preserve formatting
+
+3.2 Reply Translation
+Description
+
+Translate reply before sending.
+
+Functional Requirements
+
+FR7: System shall detect compose window text
+
+FR8: System shall translate text to recipient language
+
+FR9: System shall replace outgoing text with translation
+
+FR10: System shall optionally keep original
+
+3.3 Language Detection
+
+FR11: System shall auto detect language per email
+
+FR12: System shall store detected language per thread
+
+FR13: System shall allow manual override
+
+3.4 Toggle View
+
+FR14: User shall switch between original and translated
+
+FR15: Toggle shall be visible per email
+
+3.5 Settings
+
+FR16: User shall select preferred language
+
+FR17: User shall enable/disable auto translate
+
+FR18: User shall select translation API
+
+4. External Interface Requirements
+4.1 User Interface
+Gmail Email View
+
+Original email
+
+Translated block below
+
+Toggle button
+
+Compose Window
+
+Translate button
+
+Language indicator
+
+4.2 Software Interfaces
+
+Gmail DOM
+
+Chrome Extension APIs
+
+Translation API
+
+5. Non-Functional Requirements
+5.1 Performance
+
+Translation time < 2 seconds
+
+DOM injection < 200 ms
+
+5.2 Usability
+
+No Gmail layout disruption
+
+One-click translation
+
+Clear labels
+
+5.3 Reliability
+
+Must not alter original email
+
+Fail gracefully if API fails
+
+5.4 Security
+
+Do not store emails externally
+
+API calls over HTTPS
+
+No credential access
+
+5.5 Compatibility
+
+Gmail latest UI
+
+Chrome desktop
+
+6. System Architecture
+Components
+
+Content Script (DOM reader)
+
+Background Script
+
+Translation Module
+
+UI Injector
+
+Settings Manager
+
+7. Data Flow
+
+Email loaded
+↓
+Content script extracts text
+↓
+Language detection
+↓
+Translation API
+↓
+Translated HTML injected
+
+8. Constraints
+
+Gmail DOM may change
+
+API quota limits
+
+Browser security policies
+
+9. Future Enhancements
+
+Thread context translation
+
+Tone adaptation
+
+Offline translation
+
+Outlook support
+
+Mobile version
+
+10. Acceptance Criteria
+
+The system is accepted if:
+
+Emails auto translate in Gmail
+
+Replies translate correctly
+
+Toggle works
+
+Formatting preserved
+
+No Gmail breakage

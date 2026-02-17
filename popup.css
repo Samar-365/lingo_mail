@@ -1,0 +1,330 @@
+/* ─── Lingo-Mail Popup Styles ─── */
+/* Premium dark theme settings panel */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 360px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f14;
+    color: #e5e7eb;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Container ── */
+.popup-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+/* ── Header ── */
+.popup-header {
+    padding: 20px 20px 16px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.logo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+
+.logo-text h1 {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #c7d2fe, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+/* ── Settings Body ── */
+.settings-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ── Field Group ── */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.field-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c7d2fe;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.field-icon {
+    font-size: 15px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 10px 42px 10px 14px;
+    background: #1e1e2f;
+    border: 1px solid #2d2d44;
+    border-radius: 10px;
+    color: #e5e7eb;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-wrapper input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.input-wrapper input::placeholder {
+    color: #6b7280;
+}
+
+.eye-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.eye-btn:hover {
+    opacity: 1;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.field-hint a {
+    color: #818cf8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.field-hint a:hover {
+    text-decoration: underline;
+}
+
+/* ── Select ── */
+select {
+    width: 100%;
+    padding: 10px 14px;
+    background: #1e1e2f;
+    border: 1px solid #2d2d44;
+    border-radius: 10px;
+    color: #e5e7eb;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* ── Toggle Switch ── */
+.toggle-row {
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #2d2d44;
+    border-radius: 26px;
+    transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked+.toggle-slider {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.toggle-switch input:checked+.toggle-slider::before {
+    transform: translateX(20px);
+}
+
+/* ── Save Button ── */
+.save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    font-family: inherit;
+    margin-top: 4px;
+}
+
+.save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5);
+}
+
+.save-btn:active {
+    transform: translateY(0);
+}
+
+.save-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.save-icon {
+    font-size: 16px;
+}
+
+/* ── Status Message ── */
+.status-msg {
+    display: none;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    animation: fade-in-msg 0.3s ease;
+}
+
+.status-msg.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-msg.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+@keyframes fade-in-msg {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Footer ── */
+.popup-footer {
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(99, 102, 241, 0.1);
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.popup-footer a {
+    color: #818cf8;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.popup-footer a:hover {
+    text-decoration: underline;
+}
+
+.version {
+    font-weight: 500;
+    color: #4b5563;
+}
