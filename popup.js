@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         (result) => {
             if (result.lingoApiKey) apiKeyInput.value = result.lingoApiKey;
             if (result.targetLanguage) targetLangSelect.value = result.targetLanguage;
-            if (result.autoTranslate !== undefined) autoTranslateCheck.checked = result.autoTranslate;
+            autoTranslateCheck.checked = result.autoTranslate !== undefined ? result.autoTranslate : true;
         }
     );
 

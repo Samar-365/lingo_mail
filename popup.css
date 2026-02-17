@@ -189,6 +189,15 @@ select:focus {
     flex-shrink: 0;
 }
 
+.toggle-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c7d2fe;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .toggle-switch input {
     opacity: 0;
     width: 0;
