@@ -43,6 +43,7 @@ async function translateText(text, sourceLocale, targetLocale, apiKey) {
             Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
+            params: { workflowId: crypto.randomUUID(), fast: false },
             locale: {
                 source: sourceLocale || null,
                 target: targetLocale,
@@ -81,6 +82,7 @@ async function translateHtml(html, sourceLocale, targetLocale, apiKey) {
             Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
+            params: { workflowId: crypto.randomUUID(), fast: false },
             locale: {
                 source: sourceLocale || null,
                 target: targetLocale,
