@@ -43,6 +43,8 @@
     }
 
     // ── Process Email View ──
+    // Only translates the currently opened/expanded email to conserve API usage.
+    // Collapsed emails in a Gmail thread have zero offsetHeight and are skipped.
     function processEmailView() {
         const emailBodies = document.querySelectorAll(
             'div.a3s.aiL, div[data-message-id] div.a3s'
@@ -50,6 +52,9 @@
 
         emailBodies.forEach((emailBody) => {
             if (emailBody.dataset.lingoProcessed) return;
+
+            // Skip emails that are collapsed / not visible (saves API calls)
+            if (emailBody.offsetHeight === 0) return;
 
             const messageContainer = emailBody.closest('[data-message-id]') || emailBody.closest('.gs');
             const messageId = messageContainer?.getAttribute('data-message-id') ||
