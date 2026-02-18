@@ -6,6 +6,16 @@ const LINGO_API_BASE = "https://engine.lingo.dev";
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 const GEMINI_MODEL = "gemini-2.5-flash";
 
+const LANGUAGE_NAMES = {
+    en: "English", es: "Spanish", fr: "French", de: "German", it: "Italian",
+    pt: "Portuguese", ru: "Russian", zh: "Chinese", ja: "Japanese", ko: "Korean",
+    ar: "Arabic", hi: "Hindi", bn: "Bengali", tr: "Turkish", vi: "Vietnamese",
+    th: "Thai", pl: "Polish", nl: "Dutch", sv: "Swedish", da: "Danish",
+    fi: "Finnish", no: "Norwegian", cs: "Czech", ro: "Romanian", hu: "Hungarian",
+    el: "Greek", he: "Hebrew", id: "Indonesian", ms: "Malay", uk: "Ukrainian",
+    ta: "Tamil", te: "Telugu", mr: "Marathi", gu: "Gujarati", kn: "Kannada",
+};
+
 // ── Lingo.dev API Helpers ──
 
 async function getApiKey() {
@@ -139,8 +149,9 @@ async function detectLanguage(text, apiKey) {
  * Call Gemini API to summarize email text.
  * Endpoint: POST /v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}
  */
-async function summarizeText(text, apiKey) {
-    const prompt = `You are an email summarizer. Summarize the following email concisely in 2-3 bullet points. Focus on the key information, action items, and important details. Use plain text, no markdown formatting. Keep each bullet point on its own line starting with "•".
+async function summarizeText(text, apiKey, language) {
+    const langName = LANGUAGE_NAMES[language] || language || "the same language as the email";
+    const prompt = `You are an email summarizer. Summarize the following email concisely in 2-3 bullet points in ${langName}. Focus on the key information, action items, and important details. Use plain text, no markdown formatting. Keep each bullet point on its own line starting with "•". IMPORTANT: The summary MUST be written in ${langName}.
 
 Email:
 ${text}`;
@@ -275,6 +286,6 @@ async function handleSummarize(request) {
     if (!settings.geminiApiKey) {
         throw new Error("No Gemini API key configured. Please set your Gemini API key in the extension settings.");
     }
-    const result = await summarizeText(request.text, settings.geminiApiKey);
+    const result = await summarizeText(request.text, settings.geminiApiKey, request.language);
     return { summary: result };
 }

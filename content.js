@@ -220,24 +220,9 @@
         });
 
         emailBody.parentElement.insertBefore(btn, emailBody);
-
-        // Also add a standalone summarize button
-        injectSummarizeButton(emailBody, messageId);
     }
 
-    // ── Summarize Button (standalone, for non-translated emails) ──
-    function injectSummarizeButton(emailBody, messageId) {
-        if (emailBody.parentElement.querySelector('.lingo-summarize-standalone')) return;
 
-        const btn = document.createElement("button");
-        btn.className = "lingo-summarize-standalone";
-        btn.innerHTML = '✨ Summarize';
-        btn.addEventListener("click", () => {
-            handleSummarize(emailBody, messageId, btn);
-        });
-
-        emailBody.parentElement.insertBefore(btn, emailBody);
-    }
 
     // ── Handle Summarize Click ──
     async function handleSummarize(emailBody, messageId, btn) {
@@ -250,10 +235,11 @@
             }
         }
 
-        const originalText = emailBody.innerText?.trim() ||
-            emailBody.parentElement.querySelector('.lingo-translated-content')?.innerText?.trim() || "";
+        // Prefer translated text over original for summarization
+        const translatedEl = emailBody.parentElement.querySelector('.lingo-translated-content');
+        const textToSummarize = translatedEl?.innerText?.trim() || emailBody.innerText?.trim() || "";
 
-        if (!originalText || originalText.length < 10) return;
+        if (!textToSummarize || textToSummarize.length < 10) return;
 
         btn.disabled = true;
         const originalLabel = btn.innerHTML;
@@ -262,7 +248,8 @@
         try {
             const result = await chrome.runtime.sendMessage({
                 action: "summarize",
-                text: originalText.substring(0, 3000), // Limit to avoid token overflow
+                text: textToSummarize.substring(0, 3000), // Limit to avoid token overflow
+                language: settings.targetLanguage || "en",
             });
 
             if (result?.error) {
