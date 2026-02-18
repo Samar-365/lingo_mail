@@ -9,7 +9,8 @@
     ],
     "host_permissions": [
         "https://mail.google.com/*",
-        "https://engine.lingo.dev/*"
+        "https://engine.lingo.dev/*",
+        "https://generativelanguage.googleapis.com/*"
     ],
     "action": {
         "default_popup": "popup.html",

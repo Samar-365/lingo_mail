@@ -39,6 +39,14 @@
     font-size: 16px;
 }
 
+/* ── Button Group ── */
+.lingo-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
 /* ── Toggle Button ── */
 .lingo-toggle-btn {
     background: rgba(255, 255, 255, 0.2);
@@ -63,6 +71,124 @@
 
 .lingo-toggle-btn:active {
     transform: translateY(0);
+}
+
+/* ── Summarize Button (in header) ── */
+.lingo-summarize-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.lingo-summarize-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.lingo-summarize-btn:active {
+    transform: translateY(0);
+}
+
+.lingo-summarize-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── Standalone Summarize Button ── */
+.lingo-summarize-standalone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 6px;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 12px rgba(245, 158, 11, 0.3);
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+}
+
+.lingo-summarize-standalone:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.45);
+}
+
+.lingo-summarize-standalone:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── Summary Block ── */
+.lingo-summary-block {
+    margin: 8px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(239, 68, 68, 0.04));
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    animation: lingo-fade-in 0.3s ease;
+}
+
+.lingo-summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #fff;
+    font-size: 13px;
+}
+
+.lingo-summary-title {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lingo-summary-close {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.lingo-summary-close:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.lingo-summary-content {
+    padding: 16px;
+    line-height: 1.7;
+    color: #1f2937;
+    font-size: 14px;
+    white-space: pre-line;
 }
 
 /* ── Translated Content ── */
@@ -241,6 +367,15 @@ body.yMG .lingo-translation-block,
 }
 
 body.yMG .lingo-translated-content {
+    color: #e5e7eb;
+}
+
+body.yMG .lingo-summary-block {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.08));
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+body.yMG .lingo-summary-content {
     color: #e5e7eb;
 }
 

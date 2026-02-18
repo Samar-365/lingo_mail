@@ -3,6 +3,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     const apiKeyInput = document.getElementById("apiKey");
     const toggleKeyBtn = document.getElementById("toggleApiKey");
+    const geminiKeyInput = document.getElementById("geminiApiKey");
+    const toggleGeminiBtn = document.getElementById("toggleGeminiKey");
     const targetLangSelect = document.getElementById("targetLanguage");
     const autoTranslateCheck = document.getElementById("autoTranslate");
     const saveBtn = document.getElementById("saveBtn");
@@ -10,9 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Load saved settings
     chrome.storage.local.get(
-        ["lingoApiKey", "targetLanguage", "autoTranslate"],
+        ["lingoApiKey", "geminiApiKey", "targetLanguage", "autoTranslate"],
         (result) => {
             if (result.lingoApiKey) apiKeyInput.value = result.lingoApiKey;
+            if (result.geminiApiKey) geminiKeyInput.value = result.geminiApiKey;
             if (result.targetLanguage) targetLangSelect.value = result.targetLanguage;
             autoTranslateCheck.checked = result.autoTranslate !== undefined ? result.autoTranslate : true;
         }
@@ -29,9 +32,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Toggle Gemini key visibility
+    toggleGeminiBtn.addEventListener("click", () => {
+        if (geminiKeyInput.type === "password") {
+            geminiKeyInput.type = "text";
+            toggleGeminiBtn.textContent = "🙈";
+        } else {
+            geminiKeyInput.type = "password";
+            toggleGeminiBtn.textContent = "👁️";
+        }
+    });
+
     // Save settings
     saveBtn.addEventListener("click", () => {
         const apiKey = apiKeyInput.value.trim();
+        const geminiApiKey = geminiKeyInput.value.trim();
         const targetLanguage = targetLangSelect.value;
         const autoTranslate = autoTranslateCheck.checked;
 
@@ -44,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         saveBtn.innerHTML = '<span class="save-icon">⏳</span> Saving...';
 
         chrome.storage.local.set(
-            { lingoApiKey: apiKey, targetLanguage, autoTranslate },
+            { lingoApiKey: apiKey, geminiApiKey, targetLanguage, autoTranslate },
             () => {
                 showStatus("Settings saved successfully!", "success");
                 saveBtn.disabled = false;

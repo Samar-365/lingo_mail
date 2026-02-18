@@ -1,11 +1,12 @@
 // ─── Lingo-Mail Content Script ───
-// Interacts with Gmail DOM to detect emails, inject translations, and handle reply translation
+// Interacts with Gmail DOM to detect emails, inject translations, summarization, and handle reply translation
 
 (function () {
     "use strict";
 
     // ── State ──
     const translatedEmails = new Map();
+    const summarizedEmails = new Map();
     let observerActive = false;
     let settings = { targetLanguage: "en", autoTranslate: true };
 
@@ -80,7 +81,7 @@
 
         if (!originalText || originalText.length < 5) return;
 
-        const loadingBar = createLoadingBar();
+        const loadingBar = createLoadingBar("Translating with Lingo-Mail...");
         emailBody.parentElement.insertBefore(loadingBar, emailBody.nextSibling);
 
         try {
@@ -94,6 +95,8 @@
             if (detectedLocale === settings.targetLanguage) {
                 loadingBar.remove();
                 injectLanguageBadge(emailBody, detectedLocale, false);
+                // Still inject summarize button even if already in target language
+                injectSummarizeButton(emailBody, messageId);
                 return;
             }
 
@@ -148,6 +151,9 @@
       <span>Translated from <strong>${getLanguageName(data.detectedLocale)}</strong> to <strong>${getLanguageName(data.targetLocale)}</strong></span>
     `;
 
+        const btnGroup = document.createElement("div");
+        btnGroup.className = "lingo-btn-group";
+
         const toggleBtn = document.createElement("button");
         toggleBtn.className = "lingo-toggle-btn";
         toggleBtn.textContent = "Show Original";
@@ -155,8 +161,19 @@
             toggleTranslation(emailBody, messageId, toggleBtn);
         });
 
+        // Summarize button in the header
+        const summarizeBtn = document.createElement("button");
+        summarizeBtn.className = "lingo-summarize-btn";
+        summarizeBtn.innerHTML = "✨ Summarize";
+        summarizeBtn.addEventListener("click", () => {
+            handleSummarize(emailBody, messageId, summarizeBtn);
+        });
+
+        btnGroup.appendChild(toggleBtn);
+        btnGroup.appendChild(summarizeBtn);
+
         header.appendChild(langInfo);
-        header.appendChild(toggleBtn);
+        header.appendChild(btnGroup);
 
         const translatedContent = document.createElement("div");
         translatedContent.className = "lingo-translated-content";
@@ -203,6 +220,111 @@
         });
 
         emailBody.parentElement.insertBefore(btn, emailBody);
+
+        // Also add a standalone summarize button
+        injectSummarizeButton(emailBody, messageId);
+    }
+
+    // ── Summarize Button (standalone, for non-translated emails) ──
+    function injectSummarizeButton(emailBody, messageId) {
+        if (emailBody.parentElement.querySelector('.lingo-summarize-standalone')) return;
+
+        const btn = document.createElement("button");
+        btn.className = "lingo-summarize-standalone";
+        btn.innerHTML = '✨ Summarize';
+        btn.addEventListener("click", () => {
+            handleSummarize(emailBody, messageId, btn);
+        });
+
+        emailBody.parentElement.insertBefore(btn, emailBody);
+    }
+
+    // ── Handle Summarize Click ──
+    async function handleSummarize(emailBody, messageId, btn) {
+        // Check if already summarized
+        if (summarizedEmails.has(messageId)) {
+            const existing = emailBody.parentElement.querySelector('.lingo-summary-block');
+            if (existing) {
+                existing.style.display = existing.style.display === "none" ? "" : "none";
+                return;
+            }
+        }
+
+        const originalText = emailBody.innerText?.trim() ||
+            emailBody.parentElement.querySelector('.lingo-translated-content')?.innerText?.trim() || "";
+
+        if (!originalText || originalText.length < 10) return;
+
+        btn.disabled = true;
+        const originalLabel = btn.innerHTML;
+        btn.innerHTML = '⏳ Summarizing...';
+
+        try {
+            const result = await chrome.runtime.sendMessage({
+                action: "summarize",
+                text: originalText.substring(0, 3000), // Limit to avoid token overflow
+            });
+
+            if (result?.error) {
+                btn.innerHTML = '❌ Error';
+                setTimeout(() => { btn.innerHTML = originalLabel; btn.disabled = false; }, 3000);
+                showError(emailBody, result.error);
+                return;
+            }
+
+            summarizedEmails.set(messageId, result.summary);
+            injectSummaryBlock(emailBody, messageId, result.summary);
+
+            btn.innerHTML = '✨ Summarize';
+            btn.disabled = false;
+
+        } catch (err) {
+            btn.innerHTML = '❌ Failed';
+            btn.disabled = false;
+            setTimeout(() => { btn.innerHTML = originalLabel; }, 3000);
+            showError(emailBody, err.message);
+        }
+    }
+
+    // ── Inject Summary Block ──
+    function injectSummaryBlock(emailBody, messageId, summary) {
+        const existing = emailBody.parentElement.querySelector('.lingo-summary-block');
+        if (existing) existing.remove();
+
+        const block = document.createElement("div");
+        block.className = "lingo-summary-block";
+
+        const header = document.createElement("div");
+        header.className = "lingo-summary-header";
+
+        const title = document.createElement("span");
+        title.className = "lingo-summary-title";
+        title.innerHTML = '✨ AI Summary';
+
+        const closeBtn = document.createElement("button");
+        closeBtn.className = "lingo-summary-close";
+        closeBtn.textContent = "✕";
+        closeBtn.addEventListener("click", () => {
+            block.style.display = "none";
+        });
+
+        header.appendChild(title);
+        header.appendChild(closeBtn);
+
+        const content = document.createElement("div");
+        content.className = "lingo-summary-content";
+        content.textContent = summary;
+
+        block.appendChild(header);
+        block.appendChild(content);
+
+        // Insert after the translation block if it exists, otherwise after the email body
+        const translationBlock = emailBody.parentElement.querySelector('.lingo-translation-block');
+        if (translationBlock) {
+            translationBlock.after(block);
+        } else {
+            emailBody.after(block);
+        }
     }
 
     // ── Process Compose Window (Reply Translation) ──
@@ -312,13 +434,13 @@
     }
 
     // ── Loading Bar ──
-    function createLoadingBar() {
+    function createLoadingBar(message) {
         const bar = document.createElement("div");
         bar.className = "lingo-loading";
         bar.innerHTML = `
       <div class="lingo-loading-inner">
         <div class="lingo-spinner"></div>
-        <span>Translating with Lingo-Mail...</span>
+        <span>${message || "Processing..."}</span>
       </div>
     `;
         return bar;
