@@ -13,6 +13,11 @@
 
     // ── Initialization ──
     async function init() {
+        // Configure pdf.js to use fake worker (both scripts loaded in same scope)
+        if (typeof pdfjsLib !== "undefined") {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = "";
+        }
+
         const response = await chrome.runtime.sendMessage({ action: "getSettings" });
         if (response) {
             settings = {
@@ -31,6 +36,7 @@
         const observer = new MutationObserver(debounce(() => {
             processEmailView();
             processComposeWindow();
+            processAttachments();
         }, 500));
 
         observer.observe(document.body, {
@@ -41,6 +47,7 @@
         setTimeout(() => {
             processEmailView();
             processComposeWindow();
+            processAttachments();
         }, 2000);
     }
 
@@ -219,17 +226,28 @@
 
     // ── Manual Translate Button (when auto-translate is off) ──
     function injectTranslateButton(emailBody, messageId) {
-        if (emailBody.parentElement.querySelector('.lingo-manual-btn')) return;
+        // Find or create action row
+        let actionRow = emailBody.parentElement.querySelector('.lingo-action-row');
+        if (!actionRow) {
+            actionRow = document.createElement("div");
+            actionRow.className = "lingo-action-row";
+            emailBody.parentElement.insertBefore(actionRow, emailBody);
+        }
+
+        if (actionRow.querySelector('.lingo-manual-btn')) return;
 
         const btn = document.createElement("button");
         btn.className = "lingo-manual-btn";
-        btn.innerHTML = '🌐 Translate with Lingo-Mail';
+        btn.innerHTML = '🌐 Translate Email';
         btn.addEventListener("click", () => {
             btn.remove();
+            // If row is empty after button removal, should we remove it? 
+            // Better to leave if PDF buttons might be there.
+            if (actionRow.children.length === 0) actionRow.remove();
             translateEmailBody(emailBody, messageId);
         });
 
-        emailBody.parentElement.insertBefore(btn, emailBody);
+        actionRow.appendChild(btn);
     }
 
 
@@ -379,6 +397,295 @@
             currentReadAloudBtn.classList.remove("speaking");
             currentReadAloudBtn = null;
         }
+    }
+
+    // ── Process Attachments (PDF Translation) ──
+    function processAttachments() {
+        if (typeof pdfjsLib === "undefined") return;
+
+        // Gmail attachment cards — multiple selector strategies for resilience
+        const attachmentCards = document.querySelectorAll(
+            'div.aQH span.aZo, div.aQH div.aZo, div[download_url], span.aZo'
+        );
+
+        attachmentCards.forEach((card) => {
+            if (card.dataset.lingoPdfProcessed) return;
+
+            // Check if this is a PDF attachment
+            const filename = getAttachmentFilename(card);
+            if (!filename || !filename.toLowerCase().endsWith('.pdf')) return;
+
+            card.dataset.lingoPdfProcessed = "true";
+            const btn = injectPdfTranslateButton(card, filename);
+
+            // Auto-translate if setting is on
+            if (settings.autoTranslate && btn) {
+                handlePdfTranslate(card, filename, btn);
+            }
+        });
+    }
+
+    // ── Get Attachment Filename ──
+    function getAttachmentFilename(card) {
+        // Try download_url attribute first
+        const downloadUrl = card.getAttribute('download_url');
+        if (downloadUrl) {
+            // Format: "mime:filename:url"
+            const parts = downloadUrl.split(':');
+            if (parts.length >= 2) return parts[1];
+        }
+
+        // Try finding filename text within the card
+        const nameEl = card.querySelector('.aV3, .aQA span, [data-tooltip]');
+        if (nameEl) {
+            return nameEl.textContent?.trim() || nameEl.getAttribute('data-tooltip') || '';
+        }
+
+        // Try aria-label
+        const ariaLabel = card.getAttribute('aria-label');
+        if (ariaLabel) return ariaLabel;
+
+        return card.textContent?.trim()?.split('\n')[0] || '';
+    }
+
+    // ── Get Attachment Download URL ──
+    function getAttachmentDownloadUrl(card) {
+        // Try download_url attribute
+        const downloadUrlAttr = card.getAttribute('download_url');
+        if (downloadUrlAttr) {
+            const colonIdx = downloadUrlAttr.indexOf(':', downloadUrlAttr.indexOf(':') + 1);
+            if (colonIdx > -1) {
+                return downloadUrlAttr.substring(colonIdx + 1);
+            }
+        }
+
+        // Try finding a download link within or near the card
+        const parentContainer = card.closest('.aQH') || card.parentElement;
+        const downloadLink = parentContainer?.querySelector('a[href*="mail.google.com"][href*="&view=att"]') ||
+            parentContainer?.querySelector('a[download]') ||
+            card.querySelector('a[href]');
+
+        if (downloadLink) return downloadLink.href;
+
+        // Try the card itself if it's a link
+        if (card.tagName === 'A') return card.href;
+
+        return null;
+    }
+
+    // ── Inject PDF Translate Button ──
+    function injectPdfTranslateButton(card, filename) {
+        // Find unique ID to prevent duplicates for this file
+        // We use the card itself to track status via dataset
+        if (card.dataset.lingoButtonInjected === "true") return null;
+
+        // Find the email body element near this attachment
+        const messageRoot = card.closest('.gs') || card.closest('[data-message-id]') || card.closest('.adn');
+        if (!messageRoot) return null;
+
+        const emailBody = messageRoot.querySelector('div.a3s.aiL') || messageRoot.querySelector('div.a3s');
+        if (!emailBody) return null;
+
+        // Find or create action row
+        let actionRow = emailBody.parentElement.querySelector('.lingo-action-row');
+        if (!actionRow) {
+            actionRow = document.createElement("div");
+            actionRow.className = "lingo-action-row";
+            emailBody.parentElement.insertBefore(actionRow, emailBody);
+        }
+
+        const btn = document.createElement("button");
+        btn.className = "lingo-pdf-btn";
+        btn.innerHTML = "📄 Translate PDF";
+        btn.title = `Translate ${filename}`;
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            handlePdfTranslate(card, filename, btn);
+        });
+
+        actionRow.appendChild(btn);
+        card.dataset.lingoButtonInjected = "true";
+        return btn;
+    }
+
+    // ── Handle PDF Translate ──
+    async function handlePdfTranslate(card, filename, btn) {
+        btn.disabled = true;
+        btn.innerHTML = "⏳ Extracting text...";
+
+        try {
+            // Step 1: Get download URL
+            const downloadUrl = getAttachmentDownloadUrl(card);
+            if (!downloadUrl) {
+                throw new Error("Could not find PDF download URL. Try downloading the PDF first, then use the translate button.");
+            }
+
+            // Step 2: Fetch the PDF
+            btn.innerHTML = "⏳ Downloading PDF...";
+            const response = await fetch(downloadUrl, { credentials: "include" });
+            if (!response.ok) {
+                throw new Error(`Failed to download PDF (${response.status})`);
+            }
+            const arrayBuffer = await response.arrayBuffer();
+
+            // Step 3: Extract text with pdf.js
+            btn.innerHTML = "⏳ Extracting text...";
+            const extractedText = await extractPdfText(arrayBuffer);
+
+            if (!extractedText || extractedText.trim().length < 5) {
+                throw new Error("Could not extract text from PDF. The PDF may contain only images or scanned content.");
+            }
+
+            // Step 4: Translate
+            btn.innerHTML = "⏳ Translating...";
+            const result = await chrome.runtime.sendMessage({
+                action: "translatePdfText",
+                text: extractedText.substring(0, 10000), // Limit to avoid excessive API usage
+                targetLocale: settings.targetLanguage,
+            });
+
+            if (result?.error) {
+                throw new Error(result.error);
+            }
+
+            // Step 5: Show modal
+            showPdfTranslationModal(extractedText, result.translatedText, filename, result.targetLocale);
+
+            btn.innerHTML = "📄 Translate PDF";
+            btn.disabled = false;
+
+        } catch (err) {
+            btn.innerHTML = "❌ Failed";
+            btn.disabled = false;
+            setTimeout(() => { btn.innerHTML = "📄 Translate PDF"; }, 3000);
+
+            // Show error near the attachment
+            const container = card.closest('.aQH') || card.parentElement;
+            if (container) {
+                const errDiv = document.createElement("div");
+                errDiv.className = "lingo-error";
+                errDiv.innerHTML = `<span class="lingo-error-icon">⚠️</span><span>${escapeHtml(err.message)}</span>`;
+                container.appendChild(errDiv);
+                setTimeout(() => errDiv.remove(), 8000);
+            }
+        }
+    }
+
+    // ── Extract Text from PDF using pdf.js ──
+    async function extractPdfText(arrayBuffer) {
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const textParts = [];
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items
+                .map((item) => item.str)
+                .join(" ");
+            if (pageText.trim()) {
+                textParts.push(pageText);
+            }
+        }
+
+        return textParts.join("\n\n");
+    }
+
+    // ── Show PDF Translation Modal ──
+    function showPdfTranslationModal(originalText, translatedText, filename, targetLocale) {
+        // Remove any existing modal
+        closePdfModal();
+
+        const overlay = document.createElement("div");
+        overlay.className = "lingo-pdf-modal-overlay";
+        overlay.id = "lingoPdfModal";
+
+        const modal = document.createElement("div");
+        modal.className = "lingo-pdf-modal";
+
+        // Header
+        const header = document.createElement("div");
+        header.className = "lingo-pdf-modal-header";
+        header.innerHTML = `
+            <div class="lingo-pdf-modal-title">
+                <span class="lingo-icon">📄</span>
+                <span>${escapeHtml(filename)} — Translated to <strong>${getLanguageName(targetLocale)}</strong></span>
+            </div>
+            <div class="lingo-pdf-modal-actions">
+                <button class="lingo-pdf-copy-btn" id="lingoPdfCopyBtn">📋 Copy Translation</button>
+                <button class="lingo-pdf-close-btn" id="lingoPdfCloseBtn">✕</button>
+            </div>
+        `;
+
+        // Tab bar
+        const tabBar = document.createElement("div");
+        tabBar.className = "lingo-pdf-tab-bar";
+        tabBar.innerHTML = `
+            <button class="lingo-pdf-tab active" data-tab="translated">🌐 Translated</button>
+            <button class="lingo-pdf-tab" data-tab="original">📝 Original</button>
+        `;
+
+        // Content
+        const content = document.createElement("div");
+        content.className = "lingo-pdf-modal-content";
+
+        const translatedPanel = document.createElement("div");
+        translatedPanel.className = "lingo-pdf-panel active";
+        translatedPanel.dataset.panel = "translated";
+        translatedPanel.textContent = translatedText;
+
+        const originalPanel = document.createElement("div");
+        originalPanel.className = "lingo-pdf-panel";
+        originalPanel.dataset.panel = "original";
+        originalPanel.textContent = originalText;
+
+        content.appendChild(translatedPanel);
+        content.appendChild(originalPanel);
+
+        modal.appendChild(header);
+        modal.appendChild(tabBar);
+        modal.appendChild(content);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Event listeners
+        overlay.querySelector("#lingoPdfCloseBtn").addEventListener("click", closePdfModal);
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closePdfModal();
+        });
+
+        overlay.querySelector("#lingoPdfCopyBtn").addEventListener("click", () => {
+            navigator.clipboard.writeText(translatedText).then(() => {
+                const copyBtn = overlay.querySelector("#lingoPdfCopyBtn");
+                copyBtn.innerHTML = "✅ Copied!";
+                setTimeout(() => { copyBtn.innerHTML = "📋 Copy Translation"; }, 2000);
+            });
+        });
+
+        // Tab switching
+        tabBar.querySelectorAll(".lingo-pdf-tab").forEach((tab) => {
+            tab.addEventListener("click", () => {
+                tabBar.querySelectorAll(".lingo-pdf-tab").forEach(t => t.classList.remove("active"));
+                content.querySelectorAll(".lingo-pdf-panel").forEach(p => p.classList.remove("active"));
+                tab.classList.add("active");
+                content.querySelector(`[data-panel="${tab.dataset.tab}"]`).classList.add("active");
+            });
+        });
+
+        // Escape key to close
+        const escHandler = (e) => {
+            if (e.key === "Escape") {
+                closePdfModal();
+                document.removeEventListener("keydown", escHandler);
+            }
+        };
+        document.addEventListener("keydown", escHandler);
+    }
+
+    // ── Close PDF Modal ──
+    function closePdfModal() {
+        const existing = document.getElementById("lingoPdfModal");
+        if (existing) existing.remove();
     }
 
     // ── Process Compose Window (Reply Translation) ──

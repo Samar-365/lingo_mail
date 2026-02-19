@@ -245,9 +245,10 @@
 /* ── Manual Translate Button ── */
 .lingo-manual-btn {
     display: inline-flex;
+    line-height: 1.5;
     align-items: center;
     gap: 6px;
-    margin: 8px 0;
+    margin: 0;
     padding: 8px 20px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: #fff;
@@ -430,4 +431,215 @@ body.yMG .lingo-reply-lang-select {
 
 body.yMG .lingo-loading {
     background: rgba(99, 102, 241, 0.1);
+}
+
+/* ── Action Row (Shared Container) ── */
+.lingo-action-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+
+.lingo-pdf-btn {
+    display: inline-flex;
+    line-height: 1.5;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    white-space: nowrap;
+}
+
+.lingo-pdf-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
+}
+
+.lingo-pdf-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── PDF Translation Modal ── */
+.lingo-pdf-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: lingo-fade-in 0.25s ease;
+}
+
+.lingo-pdf-modal {
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+}
+
+.lingo-pdf-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    gap: 12px;
+}
+
+.lingo-pdf-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lingo-pdf-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.lingo-pdf-copy-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.lingo-pdf-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.lingo-pdf-close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.lingo-pdf-close-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.1);
+}
+
+/* ── PDF Modal Tab Bar ── */
+.lingo-pdf-tab-bar {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.lingo-pdf-tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    border-bottom: 2px solid transparent;
+}
+
+.lingo-pdf-tab:hover {
+    color: #6366f1;
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.lingo-pdf-tab.active {
+    color: #6366f1;
+    border-bottom-color: #6366f1;
+    background: #fff;
+}
+
+/* ── PDF Modal Content ── */
+.lingo-pdf-modal-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 200px;
+}
+
+.lingo-pdf-panel {
+    display: none;
+    padding: 20px 24px;
+    line-height: 1.7;
+    color: #1f2937;
+    font-size: 14px;
+    white-space: pre-line;
+}
+
+.lingo-pdf-panel.active {
+    display: block;
+}
+
+/* ── PDF Dark Mode ── */
+body.yMG .lingo-pdf-modal {
+    background: #1f1f1f;
+}
+
+body.yMG .lingo-pdf-tab-bar {
+    background: #2d2d2d;
+    border-color: #4b5563;
+}
+
+body.yMG .lingo-pdf-tab {
+    color: #9ca3af;
+}
+
+body.yMG .lingo-pdf-tab.active {
+    background: #1f1f1f;
+}
+
+body.yMG .lingo-pdf-panel {
+    color: #e5e7eb;
 }

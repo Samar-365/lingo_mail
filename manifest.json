@@ -29,12 +29,24 @@
                 "https://mail.google.com/*"
             ],
             "js": [
+                "lib/pdf.worker.min.js",
+                "lib/pdf.min.js",
                 "content.js"
             ],
             "css": [
                 "content.css"
             ],
             "run_at": "document_idle"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "lib/pdf.worker.min.js"
+            ],
+            "matches": [
+                "https://mail.google.com/*"
+            ]
         }
     ],
     "icons": {

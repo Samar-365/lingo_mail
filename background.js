@@ -236,6 +236,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 
+    if (request.action === "translatePdfText") {
+        handleTranslatePdfText(request).then(sendResponse).catch((err) => {
+            sendResponse({ error: err.message });
+        });
+        return true;
+    }
+
     if (request.action === "getSettings") {
         getSettings().then(sendResponse);
         return true;
@@ -288,4 +295,58 @@ async function handleSummarize(request) {
     }
     const result = await summarizeText(request.text, settings.geminiApiKey, request.language);
     return { summary: result };
+}
+
+async function handleTranslatePdfText(request) {
+    const settings = await getSettings();
+    if (!settings.apiKey) {
+        throw new Error("No API key configured. Please set your Lingo.dev API key in the extension settings.");
+    }
+    const targetLocale = request.targetLocale || settings.targetLanguage;
+    const text = request.text || "";
+    if (!text.trim()) {
+        throw new Error("No text extracted from PDF.");
+    }
+
+    // Split text into chunks of ~2000 chars at sentence boundaries
+    const chunks = [];
+    const maxChunk = 2000;
+    let remaining = text;
+    while (remaining.length > 0) {
+        if (remaining.length <= maxChunk) {
+            chunks.push(remaining);
+            break;
+        }
+        // Find last sentence-ending punctuation within the chunk
+        let splitAt = maxChunk;
+        const slice = remaining.substring(0, maxChunk);
+        const lastPeriod = Math.max(
+            slice.lastIndexOf(". "),
+            slice.lastIndexOf(".\n"),
+            slice.lastIndexOf("! "),
+            slice.lastIndexOf("? ")
+        );
+        if (lastPeriod > maxChunk * 0.3) {
+            splitAt = lastPeriod + 1;
+        }
+        chunks.push(remaining.substring(0, splitAt));
+        remaining = remaining.substring(splitAt).trimStart();
+    }
+
+    // Translate each chunk
+    const translatedChunks = [];
+    for (const chunk of chunks) {
+        const translated = await translateText(
+            chunk,
+            request.sourceLocale || null,
+            targetLocale,
+            settings.apiKey
+        );
+        translatedChunks.push(translated);
+    }
+
+    return {
+        translatedText: translatedChunks.join("\n"),
+        targetLocale,
+    };
 }
