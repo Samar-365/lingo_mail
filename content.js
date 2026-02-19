@@ -8,6 +8,7 @@
     const translatedEmails = new Map();
     const summarizedEmails = new Map();
     let observerActive = false;
+    let currentReadAloudBtn = null; // Track active read-aloud button
     let settings = { targetLanguage: "en", autoTranslate: true };
 
     // ── Initialization ──
@@ -169,8 +170,17 @@
             handleSummarize(emailBody, messageId, summarizeBtn);
         });
 
+        // Read Aloud button in the header
+        const readAloudBtn = document.createElement("button");
+        readAloudBtn.className = "lingo-read-aloud-btn";
+        readAloudBtn.innerHTML = "🔊 Read Aloud";
+        readAloudBtn.addEventListener("click", () => {
+            handleReadAloud(emailBody, messageId, readAloudBtn);
+        });
+
         btnGroup.appendChild(toggleBtn);
         btnGroup.appendChild(summarizeBtn);
+        btnGroup.appendChild(readAloudBtn);
 
         header.appendChild(langInfo);
         header.appendChild(btnGroup);
@@ -311,6 +321,63 @@
             translationBlock.after(block);
         } else {
             emailBody.after(block);
+        }
+    }
+
+    // ── Handle Read Aloud Click ──
+    function handleReadAloud(emailBody, messageId, btn) {
+        // If already speaking, stop
+        if (window.speechSynthesis.speaking) {
+            stopReadAloud();
+            return;
+        }
+
+        // Get the translated text
+        const translatedEl = emailBody.parentElement.querySelector('.lingo-translated-content');
+        const textToRead = translatedEl?.innerText?.trim() || emailBody.innerText?.trim() || "";
+
+        if (!textToRead || textToRead.length < 5) return;
+
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+
+        // Set language for correct pronunciation
+        const data = translatedEmails.get(messageId);
+        if (data?.targetLocale) {
+            utterance.lang = data.targetLocale;
+        } else {
+            utterance.lang = settings.targetLanguage || "en";
+        }
+
+        utterance.rate = 1;
+        utterance.pitch = 1;
+
+        // Update button state
+        btn.innerHTML = "⏹️ Stop Reading";
+        btn.classList.add("speaking");
+        currentReadAloudBtn = btn;
+
+        utterance.onend = () => {
+            btn.innerHTML = "🔊 Read Aloud";
+            btn.classList.remove("speaking");
+            currentReadAloudBtn = null;
+        };
+
+        utterance.onerror = () => {
+            btn.innerHTML = "🔊 Read Aloud";
+            btn.classList.remove("speaking");
+            currentReadAloudBtn = null;
+        };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // ── Stop Read Aloud ──
+    function stopReadAloud() {
+        window.speechSynthesis.cancel();
+        if (currentReadAloudBtn) {
+            currentReadAloudBtn.innerHTML = "🔊 Read Aloud";
+            currentReadAloudBtn.classList.remove("speaking");
+            currentReadAloudBtn = null;
         }
     }
 

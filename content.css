@@ -105,6 +105,49 @@
     transform: none;
 }
 
+/* ── Read Aloud Button (in header) ── */
+.lingo-read-aloud-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.lingo-read-aloud-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.lingo-read-aloud-btn:active {
+    transform: translateY(0);
+}
+
+.lingo-read-aloud-btn.speaking {
+    background: rgba(255, 255, 255, 0.35);
+    animation: lingo-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes lingo-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
 /* ── Standalone Summarize Button ── */
 .lingo-summarize-standalone {
     display: inline-flex;
