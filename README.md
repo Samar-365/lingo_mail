@@ -1,4 +1,4 @@
-# 🌐 Lingo-Mail
+#  Lingo-Mail
 
 **Multilingual Email Translator for Gmail** — A Chrome extension that auto-translates incoming emails, translates replies, summarizes emails with AI, and reads them aloud.
 
@@ -8,22 +8,22 @@
 
 ---
 
-## ✨ Features
+##  Features
 
 | Feature | Description |
 |---|---|
-| 🌐 **Auto-Translate Emails** | Automatically detects and translates incoming emails to your preferred language |
-| 🔄 **Toggle View** | Switch between original and translated text with one click |
-| ✍️ **Reply Translation** | Translate your replies into any supported language before sending |
-| 📄 **PDF Translation** | Extract and translate text from PDF email attachments |
-| ✨ **AI Summarization** | Get concise 2–3 bullet point summaries of emails using Gemini AI |
-| 🔊 **Read Aloud** | Listen to translated emails using text-to-speech |
-| 🌙 **Dark Mode** | Fully supports Gmail's dark theme |
-| 🌍 **35+ Languages** | English, Spanish, French, German, Hindi, Tamil, Arabic, Chinese, Japanese, Korean, and many more |
+|  **Auto-Translate Emails** | Automatically detects and translates incoming emails to your preferred language |
+|  **Toggle View** | Switch between original and translated text with one click |
+|  **Reply Translation** | Translate your replies into any supported language before sending |
+|  **PDF Translation** | Extract and translate text from PDF email attachments |
+|  **AI Summarization** | Get concise 2–3 bullet point summaries of emails using Gemini AI |
+|  **Read Aloud** | Listen to translated emails using text-to-speech |
+|  **Dark Mode** | Fully supports Gmail's dark theme |
+|  **35+ Languages** | English, Spanish, French, German, Hindi, Tamil, Arabic, Chinese, Japanese, Korean, and many more |
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ```mermaid
 graph TD
@@ -51,7 +51,7 @@ graph TD
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 lingo_mail/
@@ -71,7 +71,7 @@ lingo_mail/
 
 ---
 
-## 🔧 Tech Stack
+##  Tech Stack
 
 | Technology | Usage |
 |---|---|
@@ -84,7 +84,7 @@ lingo_mail/
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ### Prerequisites
 - Google Chrome (v110+)
@@ -115,7 +115,7 @@ lingo_mail/
 
 ---
 
-## 📊 Data Flow
+##  Data Flow
 
 ```
 Email loaded in Gmail
@@ -133,17 +133,17 @@ Inject translated block with toggle, summarize & read aloud buttons
 
 ---
 
-## 🔐 Security
+##  Security
 
-- ✅ API keys stored locally via `chrome.storage.local` — never hardcoded
-- ✅ All API calls made over **HTTPS**
-- ✅ No email content stored externally
-- ✅ Minimal permissions — only `activeTab` and `storage`
-- ✅ Extension only activates on `mail.google.com`
+-  API keys stored locally via `chrome.storage.local` — never hardcoded
+-  All API calls made over **HTTPS**
+-  No email content stored externally
+-  Minimal permissions — only `activeTab` and `storage`
+-  Extension only activates on `mail.google.com`
 
 ---
 
-## 🌍 Supported Languages
+##  Supported Languages
 
 <details>
 <summary>Click to expand full list (35 languages)</summary>
@@ -173,7 +173,7 @@ Inject translated block with toggle, summarize & read aloud buttons
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
 - [ ] Thread context–aware translation
 - [ ] Tone adaptation
@@ -183,12 +183,9 @@ Inject translated block with toggle, summarize & read aloud buttons
 
 ---
 
-## 📄 License
+##  License
 
 This project is open source under the [MIT License](LICENSE).
 
 ---
 
-<p align="center">
-  <strong>Powered by</strong> <a href="https://lingo.dev">lingo.dev</a> · Built with ❤️ for multilingual communication
-</p>
