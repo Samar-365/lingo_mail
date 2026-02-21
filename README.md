@@ -2,9 +2,6 @@
 
 **Multilingual Email Translator for Gmail** — A Chrome extension that auto-translates incoming emails, translates replies, summarizes emails with AI, and reads them aloud.
 
-![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)
-![Manifest V3](https://img.shields.io/badge/Manifest-V3-green)
-![License](https://img.shields.io/badge/License-MIT-blue)
 
 ---
 
